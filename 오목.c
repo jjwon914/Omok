@@ -51,8 +51,10 @@ int main(void)
 			break;
 		case -1:						//-1이 반환되었으면
 			return 0;					//종료
+		case 0:
+			TurnChange(&plate[0][0]);		//턴 바꿈	
 		}
-		TurnChange(&plate[0][0]);		//턴 바꿈
+		
 	}
 }
 void gotoxy(int x, int y)
