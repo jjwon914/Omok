@@ -8,6 +8,7 @@
 #define UP 72
 #define DOWN 80
 #define ENTER 13
+#define BACKSPACE 8
 
 void gotoxy(int x, int y);							//커서의 좌표를 옮기는 함수
 void clearStatusBar(void);							//오목판 밑의 상태창을 지우는 함수
@@ -44,7 +45,12 @@ int main(void)
 
 		switch (trig)
 		{
-		case 2:							//오류 메세지 출력 트리거가 활성화돼있으면
+		case 3:							//BACKSPACE
+			TurnChange(&plate[0][0]);
+			gotoxy(0, 21);				//출력할 장소로 이동한 뒤
+			printf("BACKSPACE 정상작동.\n");//오류 메세지 출력
+
+		case 2:							//재시작
 			gotoxy(10 * 3 + 1, 10);		//시작위치
 			trig = 0;					//트리거 비활성화
 			break;	
@@ -337,6 +343,17 @@ int move(char plate[][20])
 		case DOWN:						//아래쪽 키이면
 			y += 1;						//아래쪽으로 한 칸 이동
 			break;
+		case BACKSPACE:						//BACKSPACE 키이면
+			if (plate[y][x / 3] == '.')			//좌표가 비어있으면
+				return 1;						//1을 반환해 오류 메세지 출력 트리거 활성화
+			else								//비어있으면
+			{
+				plate[y][x / 3] = '.';  //빈칸으로 만들기
+				ShowCursorPos(x, y, plate[y][x / 3], 0);				
+				return 3;
+			}
+
+
 		case ENTER:						//엔터키이면
 			if (plate[y][x / 3] != '.')			//좌표가 비어있지 않으면
 				return 1;						//1을 반환해 오류 메세지 출력 트리거 활성화
