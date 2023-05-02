@@ -17,12 +17,14 @@ void ShowPlate(char(*plate)[20]);					//오목판을 보여주는 함수
 int Win(char c);									//이겼을 때 출력하는 함수
 int WinOrNot(char plate[][20], int y, int x);		//끝났는지 아닌지 판단하는 함수
 int move(char plate[][20]);							//이동과 돌 놓기를 구현한 함수
+
+char plate[20][20];					//오목판 배열
+int x, y;
+int trig = 0;
+
 int main(void)
 {
 	HANDLE hnd = GetStdHandle(STD_OUTPUT_HANDLE);
-	char plate[20][20];					//오목판 배열
-	int x, y;
-	int trig = 0;
 
 	for(x=1; x<size; x++)				//1부터 19까지 
 		plate[0][x] = x;				//제일 윗줄에 1~19 순서대로 대입
@@ -42,6 +44,10 @@ int main(void)
 
 		switch (trig)
 		{
+		case 2:							//오류 메세지 출력 트리거가 활성화돼있으면
+			gotoxy(10 * 3 + 1, 10);		//시작위치
+			trig = 0;					//트리거 비활성화
+			break;	
 		case 1:							//오류 메세지 출력 트리거가 활성화돼있으면
 			gotoxy(0, 21);				//출력할 장소로 이동한 뒤
 			SetConsoleTextAttribute(hnd, 0x04);//배경, 글자색 변경(검정, 진한 빨강)
@@ -52,10 +58,29 @@ int main(void)
 		case -1:						//-1이 반환되었으면
 			return 0;					//종료
 		case 0:
-			TurnChange(&plate[0][0]);		//턴 바꿈 도 CASE 안에 넣어서 오류해결.	
+			TurnChange(&plate[0][0]);		//턴 바꿈 도 CASE 안에 넣어서 오류해결.		
 		}
 		
 	}
+}
+void clear() //초기화 함수 추가
+{
+	HANDLE hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	//char plate[20][20];					//오목판 배열
+	//int x, y;
+	//int trig = 0;
+
+	for(x=1; x<size; x++)				//1부터 19까지 
+		plate[0][x] = x;				//제일 윗줄에 1~19 순서대로 대입
+	for(y=1; y<size; y++)				//1부터 19까지
+		plate[y][0] = y;				//제일 왼쪽에 1~19 순서대로 대입
+	for(x=1; x<size; x++)
+		for(y=1; y<size; y++)
+			plate[y][x] = '.';			//나머지는 다 .으로 채움
+
+	plate[0][0] = 'O';					//턴은 O 먼저 시작
+	ShowPlate(plate);					//오목판을 보여줌
+	gotoxy(10 * 3 + 1, 10);				//(10, 10) 지점으로 커서 이동
 }
 void gotoxy(int x, int y)
 {
@@ -325,7 +350,15 @@ int move(char plate[][20])
 			{
 				gotoxy(0, 20);
 				Win(plate[0][0]);				//Win() 실행
-				return -1;						//-1 반환
+
+				gotoxy(0, 22);
+				printf("Enter를 눌러 재시작, 종료하려면 아무키나 누르세요.");
+				clt = _getch();
+				if(clt == ENTER)
+				{
+					clear();
+				}		//재시작
+				else return -1;						//-1 반환
 			}
 			else								//끝나지 않았으면
 			{
